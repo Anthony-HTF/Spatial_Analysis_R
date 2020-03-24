@@ -1,2 +1,2 @@
-# Spatial_Analysis_R
- An introduction to thematic maps using R
+# Spatial Analysis in R
+ An introduction to building thematic maps using R

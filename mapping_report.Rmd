@@ -1,0 +1,108 @@
+---
+title: "DRAFT - Covid Infections"
+author: "MHCLG"
+date: "`r format(Sys.Date()-1, '%d, %B, %Y')`"
+output: html_document
+---
+
+# <span style="color: red;">Test Report Only</span>
+
+This is a demonstration on designing choropleths in R using data from PHE.
+
+Data from [Public health England](https://www.gov.uk/government/publications/covid-19-track-coronavirus-cases)
+
+* **Data for map:** [UTLA cases table](https://www.arcgis.com/home/item.html?id=b684319181f94875a6879bbc833ca3a6) 
+
+
+```{r knitr_init, echo=FALSE, cache=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      cache=FALSE,
+                      message=FALSE,
+                      warning=FALSE,
+                      fig.width= 12,
+                      fig.height= 12,
+                      dev = "svg")
+```
+
+```{r include=FALSE}
+# load packages
+lapply(c( "tidyverse", "sf", "tmap", "lubridate","leaflet", "DT"), library, character.only = TRUE)
+
+# download England Shape file
+england_UA <- st_read("https://ons-inspire.esriuk.com/arcgis/rest/services/Administrative_Boundaries/Counties_and_Unitary_Authorities_April_2019_Boundaries_GB_BUC/MapServer/0/query?where=UPPER(ctyua19cd)%20like%20'%25E%25'&outFields=*&outSR=4326&f=geojson")
+
+# Downlaod covid inections data
+infections <- read.csv(url("http://www.arcgis.com/sharing/rest/content/items/b684319181f94875a6879bbc833ca3a6/data"),header = TRUE)
+
+# load ONS codes 
+ons_codes <- read.csv(file = "ons_codes.csv", header = TRUE)
+
+# left join infectiosn data to the relvant location in England
+england_cases <- left_join(x = england_UA,
+                           y = infections[,c(1,3)],
+                           by = c("ctyua19cd"="GSS_CD"))
+
+# left join the region of each loaction in England
+england_cases <- left_join(x = england_cases,
+                           y = ons_codes[,c(2:3)],
+                           by = c("ctyua19cd"="organisation_id"))
+
+england_cases <- england_cases %>% mutate(roe = ifelse(test = england_cases$region_name == "London",yes = "London",no = "Rest of England"))
+
+england_cases$name_abbr <- abbreviate(england_cases$ctyua19nm)
+
+
+```
+
+
+## Rest of England: **Cases**
+```{r warning= FALSE, message= FALSE,echo=FALSE,fig.align='center'}
+england_cases %>% filter(roe != "London") %>%
+  tm_shape() +
+  tm_fill("TotalCases", style = "cont",  title = "Covid infections") +
+  tm_borders(lwd = 1, lty = 1) +
+  tm_text("name_abbr", size = 1, col = "black")+
+  tm_style("col_blind")+
+  tm_layout(frame = FALSE,legend.title.size=1,legend.text.size = 1, legend.position = c("left","centre"))
+
+```
+
+## Table: Confirmed cases in England (excluding London)
+
+```{r warning= FALSE, message= FALSE,echo=FALSE,fig.align='center'}
+
+ROE <- england_cases %>% filter(region_name != "London")
+ROE_a <- ROE[[15]]
+ROE_b <- as.character(ROE[[3]])
+ROE_c <- ROE[[11]]
+
+DT::datatable(cbind.data.frame(ROE_a,ROE_b,ROE_c) %>% rename(`Abbreviation` = ROE_a, `Unitary Authority` = ROE_b, `Total Cases` = ROE_c ))
+```
+
+
+## London: **Cases**
+```{r warning= FALSE, message= FALSE,echo=FALSE,fig.align='center'}
+england_cases %>% filter(roe == "London") %>%
+  tm_shape() +
+  tm_fill("TotalCases", style = "cont",  title = "Covid infections") +
+  tm_borders(lwd = 1, lty = 1) +
+  tm_text("name_abbr", size = 1, col = "black")+
+  tm_style("col_blind")+
+  tm_layout(frame = FALSE,legend.title.size=1,legend.text.size = 1, legend.position = c("left","bottom"))
+
+```
+
+## Table: Confirmed cases in London
+
+```{r warning= FALSE, message= FALSE,echo=FALSE,fig.align='center'}
+
+London <- england_cases %>% filter(region_name== "London")
+lon_a <- London[[15]]
+lon_b <- as.character(London[[3]])
+lon_c <- London[[11]]
+
+DT::datatable(cbind.data.frame(lon_a,lon_b,lon_c) %>% rename(`Abbreviation` = lon_a, `Unitary Authority` = lon_b, `Total Cases` = lon_c ))
+```
+
+
+

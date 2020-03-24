@@ -20,8 +20,7 @@ knitr::opts_chunk$set(echo = TRUE,
                       message=FALSE,
                       warning=FALSE,
                       fig.width= 12,
-                      fig.height= 12,
-                      dev = "svg")
+                      fig.height= 12)
 ```
 
 ```{r include=FALSE}

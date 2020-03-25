@@ -44,7 +44,7 @@ plot(gc)
 
 
 # download England Shape file
-england_UA <- st_read("https://ons-inspire.esriuk.com/arcgis/rest/services/Administrative_Boundaries/Counties_and_Unitary_Authorities_April_2019_Boundaries_GB_BUC/MapServer/0/query?where=UPPER(ctyua19cd)%20like%20'%25E%25'&outFields=*&outSR=4326&f=geojson")
+england_UA <- sf::st_read("https://ons-inspire.esriuk.com/arcgis/rest/services/Administrative_Boundaries/Counties_and_Unitary_Authorities_April_2019_Boundaries_GB_BUC/MapServer/0/query?where=UPPER(ctyua19cd)%20like%20'%25E%25'&outFields=*&outSR=4326&f=geojson")
 
 # Downlaod covid inections data
 infections <- read.csv(url("http://www.arcgis.com/sharing/rest/content/items/b684319181f94875a6879bbc833ca3a6/data"),header = TRUE)
@@ -84,7 +84,7 @@ england_cases  %>%
 # something not quite right about the shape of the map. What?
 st_is_valid(england_cases, reason = TRUE)
 
-# Which location is row 136?
+# Which location is row 134?
 england_cases[[134,3]]
 
 # Have a look at Hampshire. What is the matter?
@@ -105,18 +105,19 @@ tmap_save (tm = hampshire, filename = "hamshire.svg", units =  "px", width = 100
 # leaflet translates into javascript for you
 
 leaflet(england_cases) %>%
-  addTiles() %>%
-  addPolygons(weight = 1, fillOpacity = 0.2)
-
-leaflet(england_cases) %>%
   addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
   addPolygons(weight = 1, fillOpacity = 0.2 )
+
+leaflet(england_cases) %>%
+  addTiles() %>%
+  addPolygons(weight = 1, fillOpacity = 0.2)
 
 leaflet(england_cases) %>%
   addTiles() %>%
   addPolygons(weight = 1, fillOpacity = 0.2 )%>%
   addMiniMap()
 
+# create a colour scale based on the data in the TotalCases column
 pal <- colorNumeric(palette = c("green", "orange", "red"), domain =  england_cases$TotalCases)
 pal(100)
 

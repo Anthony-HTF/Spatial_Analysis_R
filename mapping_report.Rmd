@@ -1,7 +1,7 @@
 ---
 title: "DRAFT - Covid Infections"
 author: "MHCLG"
-date: "`r format(Sys.Date()-1, '%d, %B, %Y')`"
+date: "`r format(Sys.Date(), '%d, %B, %Y')`"
 output: html_document
 ---
 
@@ -25,7 +25,7 @@ knitr::opts_chunk$set(echo = TRUE,
 
 ```{r include=FALSE}
 # load packages
-lapply(c( "tidyverse", "sf", "tmap", "lubridate","leaflet", "DT"), library, character.only = TRUE)
+lapply(c( "tidyverse", "sf", "tmap", "lubridate","leaflet", "DT", "scales"), library, character.only = TRUE)
 
 # download England Shape file
 england_UA <- st_read("https://ons-inspire.esriuk.com/arcgis/rest/services/Administrative_Boundaries/Counties_and_Unitary_Authorities_April_2019_Boundaries_GB_BUC/MapServer/0/query?where=UPPER(ctyua19cd)%20like%20'%25E%25'&outFields=*&outSR=4326&f=geojson")
@@ -60,7 +60,7 @@ england_cases[which(england_cases$ctyua19nm == "City of London"),][["TotalCases"
 
 ```
 
-## Total cases in England as of `r format(Sys.Date()-1, '%d, %B, %Y')`: **`r sum(england_cases[["TotalCases"]],na.rm = NA)`**
+### Total cases in England as of `r format(Sys.Date()-1, '%d, %B, %Y')`: **`r scales::comma(sum(england_cases[["TotalCases"]],na.rm = NA), big.mark = ',')`**
 
 ```{r warning= FALSE, message= FALSE,echo=FALSE,fig.align='center'}
 england_cases %>% filter(roe != "London") %>%
@@ -85,7 +85,7 @@ ROE_c <- ROE[[11]]
 DT::datatable(cbind.data.frame(ROE_a,ROE_b,ROE_c) %>% rename(`Abbreviation` = ROE_a, `Unitary Authority` = ROE_b, `Total Cases` = ROE_c ))
 ```
 
-## Total cases in London as of `r format(Sys.Date()-1, '%d, %B, %Y')`: **`r sum(england_cases[which(england_cases$roe == "London"),][["TotalCases"]],na.rm = NA)`**
+### Total cases in London as of `r format(Sys.Date()-1, '%d, %B, %Y')`: **`r comma(sum(england_cases[which(england_cases$roe == "London"),][["TotalCases"]],na.rm = NA), big.mark = ',')`**
 
 ```{r warning= FALSE, message= FALSE,echo=FALSE,fig.align='center'}
 england_cases %>% filter(roe == "London") %>%

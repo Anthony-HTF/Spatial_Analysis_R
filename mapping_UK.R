@@ -68,7 +68,14 @@ england_cases <- england_cases %>% mutate(roe = ifelse(test = england_cases$regi
 # add column with abbrevbiated unitary authority name 
 england_cases$name_abbr <- abbreviate(england_cases$ctyua19nm)
 
+# Divide "Hackney & City of London" infection numbers into respective local authorities "Hackney" and "City of London"
+# population of Hackney 280,000. population of CoL 10,000. 10/280 = 0.035
 
+Hackney_CoL <- england_cases[which(england_cases$ctyua19nm == "Hackney"),][["TotalCases"]]
+
+england_cases[which(england_cases$ctyua19nm == "Hackney"),][["TotalCases"]] <- round(Hackney_CoL * (1-0.035))
+england_cases[which(england_cases$ctyua19nm == "City of London"),][["TotalCases"]] <- round(Hackney_CoL * 0.035)
+ 
 # have a look at the map
 england_cases  %>%
   tm_shape() +

@@ -50,11 +50,18 @@ england_cases <- england_cases %>% mutate(roe = ifelse(test = england_cases$regi
 
 england_cases$name_abbr <- abbreviate(england_cases$ctyua19nm)
 
+# Divide "Hackney & City of London" infection numbers into respective local authorities "Hackney" and "City of London"
+# population of Hackney 280,000. population of CoL 10,000. 10/280 = 0.035
+
+Hackney_CoL <- england_cases[which(england_cases$ctyua19nm == "Hackney"),][["TotalCases"]]
+
+england_cases[which(england_cases$ctyua19nm == "Hackney"),][["TotalCases"]] <- round(Hackney_CoL * (1-0.035))
+england_cases[which(england_cases$ctyua19nm == "City of London"),][["TotalCases"]] <- round(Hackney_CoL * 0.035)
 
 ```
 
+## Total cases in England as of `r format(Sys.Date()-1, '%d, %B, %Y')`: **`r sum(england_cases[["TotalCases"]],na.rm = NA)`**
 
-## Rest of England: **Cases**
 ```{r warning= FALSE, message= FALSE,echo=FALSE,fig.align='center'}
 england_cases %>% filter(roe != "London") %>%
   tm_shape() +
@@ -78,8 +85,8 @@ ROE_c <- ROE[[11]]
 DT::datatable(cbind.data.frame(ROE_a,ROE_b,ROE_c) %>% rename(`Abbreviation` = ROE_a, `Unitary Authority` = ROE_b, `Total Cases` = ROE_c ))
 ```
 
+## Total cases in London as of `r format(Sys.Date()-1, '%d, %B, %Y')`: **`r sum(england_cases[which(england_cases$roe == "London"),][["TotalCases"]],na.rm = NA)`**
 
-## London: **Cases**
 ```{r warning= FALSE, message= FALSE,echo=FALSE,fig.align='center'}
 england_cases %>% filter(roe == "London") %>%
   tm_shape() +

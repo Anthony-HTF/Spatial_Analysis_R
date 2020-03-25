@@ -1,8 +1,8 @@
 # Install packages
-install.packages(c("tidyverse","sf","tmap","lubridate", "leaflet", "DT"))
+install.packages(c("tidyverse","sf","tmap","lubridate", "leaflet", "DT", "scales"))
 
 # load packages
-lapply(c( "tidyverse", "sf", "tmap", "lubridate","leaflet", "DT"), library, character.only = TRUE)
+lapply(c( "tidyverse", "sf", "tmap", "lubridate","leaflet", "DT", "scales"), library, character.only = TRUE)
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 
@@ -198,9 +198,3 @@ tmap_save (tm = ldn_vs_roe, filename = "ldn_vs_roe.svg", units =  "px", width = 
 
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
-
-# TMAP -----------------------------------------------------------------------------------------------------------------------------
-
-
-
-
